@@ -80,6 +80,7 @@ export default function App({ Component, pageProps }) {
             <meta property="og:description" content="Discover and share captivating videos on TeraMaFlix." />
             <meta property="og:image" content="/logo/TeramaFlixpic.png" />
             <meta property="og:url" content="https://www.teramaflix.com/" />
+            <meta name="6a97888e-site-verification" content="2278ea106cccdf69801561234d523f7d"></meta>
             <meta name="google-site-verification" content="O-XRmj2k40bOs7UhxNg0hSxEEJkuwhdVkqBE89uWOtg" />
           </Head>
 
