@@ -2,6 +2,7 @@ import React,{useState,useEffect,useContext} from 'react'
 import Result from '../Results/Result'
 import { SessionContext } from '../context/Auth'
 import InfiniteScroll from 'react-infinite-scroll-component'
+import VideoPlayer from '../Exoclick/VideoPlayer'
 
 function Histories() {
   const auto = useContext(SessionContext)
@@ -23,7 +24,7 @@ function Histories() {
     }
   }
   useEffect(() => {
-    if(auto.session === 'unlogged'){
+    if(!auto.session || auto.session === 'unlogged'){
       const fetchVideos = async () =>{
         const response = await fetch(`/api/posts/histories/${0}/0/8`)
         const data = await response.json()
@@ -31,15 +32,17 @@ function Histories() {
     }
     fetchVideos()
     }else{
-      const fetchVideos = async () =>{
+      const fetchVideosU = async () =>{
         const user = auto.session
         const response = await fetch(`/api/posts/histories/${user.ID}/0/8`)
         const data = await response.json()
         setVideos(data)
     }
-    fetchVideos()
+    fetchVideosU()
     }
   }, [auto])
+
+  if(auto.session === 'unlogged') return null
   return (
     <>
     <InfiniteScroll
@@ -51,6 +54,9 @@ function Histories() {
       <p style={{textAlign:"center"}} className='p-2'><b>You have seen it all</b></p>
     }>
       <div className="Uploads flex flex-col w-full h-full bg-white rounded-3xl">
+        <div className="uploadsContainer w-full h-full pt-6 overflow-y-auto">
+          <VideoPlayer />
+        </div>
         <div className="uploadsContainer w-full h-full pt-6 overflow-y-auto">
           {videos.map((video, index) => {
             const currentDate = video.DateView.substring(0, 10); // Obtenir la date actuelle de la vidéo

@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { SessionContext } from '../context/Auth'
 import Video from './Video'
 import InfiniteScroll from 'react-infinite-scroll-component'
+import ExoClickVideoAd from '../Exoclick/VideoExoclikAd'
 
 function Videos() {
   const auto = useContext(SessionContext)
@@ -54,6 +55,11 @@ function Videos() {
       <p style={{textAlign:"center"}}><b>You have seen it all</b></p>
     }>
       <div className="moreVideo flex flex-col space-y-2 rounded pt-16 lg:pt-12  overflow-y-hidden  ">
+        { <ExoClickVideoAd placementId={5237330}/>}
+      </div>
+      
+      <div className="moreVideo flex flex-col space-y-2 rounded pt-16 lg:pt-12  overflow-y-hidden  ">
+      
         {
           videos?.map(video=>{
             if(video.Short === 0 && video.Visible === 1 && video.Image){

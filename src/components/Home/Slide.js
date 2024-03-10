@@ -38,11 +38,11 @@ function Slide({ video }) {
       <div className='flex justify-center'>
         <div className="swiper-slide ">
           <div className="  pb-4">
-            <div className="imag sm:h-[170px] h-[250px]  flex justify-center items-center bg-gray-100 rounded overflow-hidden  ">
+            <div className="imag sm:h-[170px] h-[250px]  flex justify-center items-center bg-white rounded overflow-hidden">
               <Link href={`/Watch?v=${video.uniid}`}>
                 <ImageComp src={video.Image} w={400} h={400} a={'video'} />
               </Link>
-              {video.Time>0 && (<span className='bg-black bg-opacity-70 text-white text-sm  absolute left-2 bottom-28 px-1 rounded-md'>{formatTime(video.Time)}</span> ) }
+              {/* {video.Time>0 && (<span className='bg-black bg-opacity-70 text-white text-sm  absolute left-2 bottom-28 px-1 rounded-md'>{formatTime(video.Time)}</span> ) } */}
             </div>
             <p title={video.Title} className="font-bold text-slate-900 text-base">{truncateText(video.Title, 17)}</p>
             <Link href={`/profile?c=${video.Uuid}`}>
