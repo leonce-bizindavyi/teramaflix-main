@@ -10,6 +10,8 @@ import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 import Slide from './Slide';
 
 export default function SwipperSlide({videos}) {
+  if(videos.length === undefined) return null
+  else
   return (
     <>
       <Swiper

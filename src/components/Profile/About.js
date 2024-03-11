@@ -20,7 +20,7 @@ useEffect(() => {
   return (
     <>
     <Title title={`About ${user.PageName} -TeramaFlix`} />
-     <div className={`${styles.filmcontainer}  `}>
+     <div className={`${styles.filmcontainer} mt-3`}>
         <div>
       <h1>Description</h1>
           <hr style={{width:100+"%",height:8+"px",textAlign:"center",color:"#3a82f5"}} className="mt-4"/>

@@ -26,7 +26,7 @@ function Categorie({ cat }) {
     <>
       <div className="flex-row space-y-0">
         <div className="flex flex-row justify-between items-center px-6 py-3">
-          <div className='text-black'><b>{cat}</b></div>
+          <div className='text-blue-600 text-lg  font-semibold  md:font-bold'><b>{cat}</b></div>
           {videos.length > 4 && (
             <div onClick={() => handlePush(cat)}>
               <button className="text-blue-500 hover:bg-gray-200 rounded-2xl px-2 cursor-pointer">

@@ -31,12 +31,13 @@ function Subs() {
     <>
       <div>
         <div className="" id="principal_cat">
+        <iframe data-aa='2309751' src='//ad.a-ads.com/2309751?size=728x90' style={{width:728+'px', height:90+'px', border:0+'px', padding:0, overflow:'hidden', backgroundColor: 'transparent'}}></iframe>
           {musics.length > 0 && (<>
             <div className="">
               <div className="mt-8 ml-6">
-                <label className="font-semibold text-blue-500">Music</label>
+                <label className="text-blue-600 text-lg  font-semibold  md:font-bold">Music</label>
               </div>
-              <div className="grid place-items-center grid-cols-1 sm:grid-cols-1 md:grid-cols-3 md:gap-y-12 md:ml-10  lg:grid-cols-4 lg:gap-y-12 lg:ml-10 xl:grid-cols-5 xl:ml-10 xl:gap-y-12">
+              <div className="grid place-items-center grid-cols-1 sm:grid-cols-1 md:grid-cols-3 md:gap-y-12 md:mx-6  lg:grid-cols-4 lg:gap-y-12 lg:ml-10 xl:grid-cols-5 xl:ml-10 xl:gap-y-12">
                 {
                   musics?.map(music => {
                     return <Sub key={music.ID} page={music} />
@@ -53,9 +54,9 @@ function Subs() {
             series.length > 0 && (<>
               <div className="">
                 <div className="mt-8 ml-6">
-                  <label className="font-semibold text-blue-600">Series</label>
+                  <label className="text-blue-600 text-lg  font-semibold  md:font-bold">Series</label>
                 </div>
-                <div className="grid place-items-center grid-cols-1 sm:grid-cols-1 md:grid-cols-3 md:gap-y-12 md:ml-10  lg:grid-cols-4 lg:gap-y-12 lg:ml-10 xl:grid-cols-5 xl:ml-10 xl:gap-y-12">
+                <div className="grid place-items-center grid-cols-1 sm:grid-cols-1 md:grid-cols-3 md:gap-y-12 md:mx-6  lg:grid-cols-4 lg:gap-y-12 lg:ml-10 xl:grid-cols-5 xl:ml-10 xl:gap-y-12">
                   {
                     series?.map(serie => {
                       return <Sub key={serie.ID} page={serie} />
@@ -77,9 +78,9 @@ function Subs() {
               <>
                 <div className="">
                   <div className="mt-8 ml-6">
-                    <label className="font-semibold text-blue-600">Comedies</label>
+                    <label className="text-blue-600 text-lg  font-semibold  md:font-bold">Comedies</label>
                   </div>
-                  <div className="grid place-items-center grid-cols-1 sm:grid-cols-1 md:grid-cols-3 md:gap-y-12 md:ml-10  lg:grid-cols-4 lg:gap-y-12 lg:ml-10 xl:grid-cols-5 xl:ml-10 xl:gap-y-12">
+                  <div className="grid place-items-center grid-cols-1 sm:grid-cols-1 md:grid-cols-3 md:gap-y-12 md:mx-6  lg:grid-cols-4 lg:gap-y-12 lg:ml-10 xl:grid-cols-5 xl:ml-10 xl:gap-y-12">
                     {
                       comd?.map(cod => {
                         return <Sub key={cod.ID} page={cod} />
@@ -101,9 +102,9 @@ function Subs() {
               <>
                 <div className="">
                   <div className="mt-8 ml-6">
-                    <label className="font-semibold text-blue-600">Films</label>
+                    <label className="text-blue-600 text-lg  font-semibold  md:font-bold">Films</label>
                   </div>
-                  <div className="grid place-items-center grid-cols-1 sm:grid-cols-1 md:grid-cols-3 md:gap-y-12 md:ml-10  lg:grid-cols-4 lg:gap-y-12 lg:ml-10 xl:grid-cols-5 xl:ml-10 xl:gap-y-12">
+                  <div className="grid place-items-center grid-cols-1 sm:grid-cols-1 md:grid-cols-3 md:gap-y-12 md:mx-6  lg:grid-cols-4 lg:gap-y-12 lg:ml-10 xl:grid-cols-5 xl:ml-10 xl:gap-y-12">
                     {
                       films?.map(film => {
                         return <Sub key={film.ID} page={film} />
@@ -126,9 +127,9 @@ function Subs() {
               <>
                 <div className="">
                   <div className="mt-8 ml-6">
-                    <label className="font-semibold text-blue-600">Others</label>
+                    <label className="text-blue-600 text-lg  font-semibold  md:font-bold">Others</label>
                   </div>
-                  <div className="grid place-items-center grid-cols-1 sm:grid-cols-1 md:grid-cols-3 md:gap-y-12 md:ml-10  lg:grid-cols-4 lg:gap-y-12 lg:ml-10 xl:grid-cols-5 xl:ml-10 xl:gap-y-12">
+                  <div className="grid place-items-center grid-cols-1 sm:grid-cols-1 md:grid-cols-3 md:gap-y-12 md:mx-6  lg:grid-cols-4 lg:gap-y-12 lg:ml-10 xl:grid-cols-5 xl:ml-10 xl:gap-y-12">
                     {
                       others?.map(other => {
                         return <Sub key={other.ID} page={other} />
