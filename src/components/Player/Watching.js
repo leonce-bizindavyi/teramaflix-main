@@ -4,7 +4,8 @@ import { Menu, Item, Separator, useContextMenu, Submenu } from 'react-contexify'
 import { useRouter } from 'next/router';
 import { SessionContext } from '../context/Auth';
 import videojs from 'video.js';
-import 'video.js/dist/video-js.css';
+import "video.js/dist/video-js.css";
+import 'videojs-record/dist/css/videojs.record.css';
 import "react-contexify/dist/ReactContexify.css";
 
 const MENU_ID = "menu-id";
@@ -33,7 +34,7 @@ function Watching({ videoprops }) {
   //handle play or pause video
   const togglePlay = () => {
     if (videoRef.current) {
-      if (videoRef.current.paused && isReady) {
+      if (videoRef.current.paused) {
         videoRef.current.play();
         setPaused('');
       } else {
@@ -198,6 +199,7 @@ function Watching({ videoprops }) {
 
   useEffect(() => {
     const video = videoRef.current
+
     const handleCanPlay = () => {
       setLoading(false)
       setIsReady(true);
@@ -285,10 +287,95 @@ function Watching({ videoprops }) {
     }
 
 
+
+
+    return () => {
+      router.events.off("routeChangeStart", handleRouteChange);
+      video.removeEventListener('canplay', handleCanPlay);
+      clearInterval(interval);
+      if (videoRef.current) {
+        videoRef.current.removeEventListener("timeupdate", updateTime);
+      }
+    };
+  }, [auth]);
+
+
+
+  useEffect(() => {
+
+    // Timeline
+    if (timelineRef.current) {
+      const timelineContainer = timelineRef.current
+      timelineContainer.addEventListener("mousedown", toggleScrubbing)
+      document.addEventListener("mouseup", e => {
+        if (isScrubbing) toggleScrubbing(e)
+      })
+    }
+    let isScrubbing = false
+    let wasPaused
+    function toggleScrubbing(e) {
+      const timelineContainer = timelineRef.current
+      const videoContainer = videoContainerRef.current
+      const rect = timelineContainer.getBoundingClientRect()
+      const percent = Math.min(Math.max(0, e.x - rect.x), rect.width) / rect.width
+      isScrubbing = (e.buttons & 1) === 1
+      videoContainer.classList.toggle("scrubbing", isScrubbing)
+      if (isScrubbing) {
+        wasPaused = videoRef.current.paused
+        videoRef.current.pause()
+      } else {
+        videoRef.current.currentTime = percent * videoRef.current.duration
+        if (!wasPaused) videoRef.current.play()
+      }
+
+    }
+
+  }, [videoprops])
+  const videoUrl = `${process.env.NEXT_PUBLIC_URL}/Watch?v=${videoprops.uniid}`;
+  /* var testVideo = fluidPlayer(
+    "my-video",
+    {
+      vastOptions: {
+        "adList": [{
+          "vAlign": "bottom",
+          "roll": "preRoll",
+          "vastTag": "https://s.magsrv.com/splash.php?idzone=5237330"
+        }]
+      }
+    }
+  ); */
+  useEffect(() => {
+    if (videoRef && videoRef.current) {
+      videojs(videoRef.current, {
+        controls: false,
+        bigPlayButton: true,
+        width: 'fullscreenElement',
+        height: 450,
+        fluid: false,
+        plugins: {},
+        aspectRatio: '16:9', // Set a default aspect ratio (optional)
+        events: {
+          fullscreenchange: function (event) {
+            // Update player size on entering/exiting fullscreen
+            if (this.hasClass('vjs-fullscreen')) {
+              setScreen("full-screen")
+              this.width('100%'); // Set width to 100% of viewport
+              this.height('calc(100vh - [player controls height])'); // Set height to 100% viewport height minus controls height
+              // Adjust height calculation if needed based on your controls layout
+            } else {
+              setScreen("")
+              // Restore original dimensions on exiting fullscreen (optional)
+              this.width(this.el_.style.width); // Use previously set width
+              this.height(this.el_.style.height); // Use previously set height
+            }
+          }
+        }
+      });
+    }
     const handleKeyPress = (event) => {
       const video = videoRef.current;
       if (video) {
-        if (document.activeElement.classList[0] !== "react-input-emoji--input" && document.activeElement.classList[0] !== "searche-here") {
+        if (document.activeElement.classList[0] === "vjs-tech" || document.activeElement.classList[0] === undefined) {
           switch (event.key) {
             case "ArrowRight":
               event.preventDefault()
@@ -304,11 +391,14 @@ function Watching({ videoprops }) {
                 video.volume = parseFloat((video.volume + 0.1).toFixed(1)); // Augmente le volume par incréments de 0.1
                 setVolume(video.volume)
                 setVolumeLevel("high")
+                videoRef.current.muted = false;
                 if (video.volume <= 0.2) {
+                  videoRef.current.muted = false;
                   setVolume(video.volume)
                   setVolumeLevel("low")
                 }
               } else if (video.volume === 1.0) {
+                videoRef.current.muted = false;
                 setVolume(video.volume)
                 setVolumeLevel("high")
               }
@@ -317,9 +407,11 @@ function Watching({ videoprops }) {
               event.preventDefault()
               if (video.volume > 0.0) {
                 video.volume = parseFloat((video.volume - 0.1).toFixed(1)); // Diminue le volume par incréments de 0.1
+                videoRef.current.muted = false;
                 setVolume(video.volume)
                 setVolumeLevel("high")
                 if (video.volume <= 0.2) {
+                  videoRef.current.muted = false;
                   setVolume(video.volume)
                   setVolumeLevel("low")
                 }
@@ -349,13 +441,14 @@ function Watching({ videoprops }) {
             case "c":
               if (!isCPressed) {
                 video.currentTime = 0;
-                togglePlay()
+                if (video.paused) togglePlay()
                 isCPressed = true;
               }
               break;
             case " ":
+              togglePlay()
+              break;
             case "k": // Espace pour lecture/pause
-              event.preventDefault()
               togglePlay()
               break;
             // Ajoutez d'autres cas pour d'autres touches si nécessaire
@@ -365,8 +458,9 @@ function Watching({ videoprops }) {
         }
       }
     };
+
     const handleKeyUp = (event) => {
-      if (document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'text') { } else {
+      if (document.activeElement.classList[0] === "vjs-tech" || document.activeElement.classList[0] === undefined) {
         const video = videoRef.current;
         if (event.key === "c") {
           isCPressed = false;
@@ -374,59 +468,62 @@ function Watching({ videoprops }) {
           togglePlay()
         }
       }
-
     };
-    window.addEventListener("keydown", handleKeyPress);
-    window.addEventListener("keyup", handleKeyUp);
 
+    document.addEventListener('keydown', handleKeyPress);
+    document.addEventListener("keyup", handleKeyUp);
 
     return () => {
-      window.removeEventListener("keydown", handleKeyPress);
-      window.removeEventListener("keyup", handleKeyUp);
-      router.events.off("routeChangeStart", handleRouteChange);
-      video.removeEventListener('canplay', handleCanPlay);
-      clearInterval(interval);
-      if (videoRef.current) {
-        videoRef.current.removeEventListener("timeupdate", updateTime);
-      }
-    };
-  }, [auth]);
-
-
-
-  useEffect(() => {
-    // Timeline
-    if (timelineRef.current) {
-      const timelineContainer = timelineRef.current
-      timelineContainer.addEventListener("mousedown", toggleScrubbing)
-      document.addEventListener("mouseup", e => {
-        if (isScrubbing) toggleScrubbing(e)
-      })
+      document.removeEventListener('keydown', handleKeyPress);
+      document.removeEventListener("keyup", handleKeyUp);
     }
-    let isScrubbing = false
-    let wasPaused
-    function toggleScrubbing(e) {
-      const timelineContainer = timelineRef.current
-      const videoContainer = videoContainerRef.current
-      const rect = timelineContainer.getBoundingClientRect()
-      const percent = Math.min(Math.max(0, e.x - rect.x), rect.width) / rect.width
-      isScrubbing = (e.buttons & 1) === 1
-      videoContainer.classList.toggle("scrubbing", isScrubbing)
-      if (isScrubbing) {
-        wasPaused = videoRef.current.paused
-        videoRef.current.pause()
-      } else {
-        videoRef.current.currentTime = percent * videoRef.current.duration
-        if (!wasPaused) videoRef.current.play()
-      }
-
-    }
-   
-  }, [videoprops])
-  const videoUrl = `${process.env.NEXT_PUBLIC_URL}/Watch?v=${videoprops.uniid}`;
+  }, []);
 
   if (!videoprops) return
   const videoId = `/api/stream?videoId=${videoprops.Video}`;
+  
+    const videoAnaltics = ()=>{
+/* 
+const player = videojs('my-video');
+    const videoData = {
+      startTime: null,
+      endTime: null,
+      playCount: 0,
+      pauseCount: 0,
+      bufferingEvents: 0,
+      seekEvents: [], // Array to store seek positions
+    };
+    
+    player.on('play', () => {
+      if (!videoData.startTime) {
+        videoData.startTime = Date.now();
+      }
+      console.log("videoData.playCount",videoData.playCount)
+      videoData.playCount++;
+    });
+    
+    player.on('pause', () => {
+      console.log("videoData.pauseCount",videoData.pauseCount)
+      videoData.pauseCount++;
+    });
+    
+    player.on('ended', () => {
+      videoData.endTime = Date.now();
+      console.log('Video playback statistics:', videoData);
+    });
+    
+    player.on('waiting', () => {
+      console.log("videoData.bufferingEvents",videoData.bufferingEvents)
+      videoData.bufferingEvents++; // Track buffering events
+    });
+    
+    player.on('seeking', () => {
+      videoData.seekEvents.push(player.currentTime()); // Record seek positions
+      console.log("videoData.seekEvents",videoData.seekEvents)
+    }); */
+    }
+    
+
   return (
     <>
       <Title title={`${videoprops.Title} - TeramaFlix`} />
@@ -447,7 +544,7 @@ function Watching({ videoprops }) {
               </svg>
             </button>
           )}
-          {loading && (<div class="loading border-transparent h-14 w-14 animate-spin rounded-full border-4  border-t-blue-700 border-r-blue-700 " />)}
+          {loading && (<div className="loading border-transparent h-14 w-14 animate-spin rounded-full border-4  border-t-blue-700 border-r-blue-700 " />)}
         </div>
         <div className={`video-controls-container ${hideCntrl}`}>
           <div ref={timelineRef} className="timeline-container">
@@ -501,7 +598,7 @@ function Watching({ videoprops }) {
               <div className="total-time">{formatTime(duration)}</div>
             </div>
             <button onClick={handleRestart} className='replay font-bold'>
-              <svg class="h-6 w-6 " width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="h-6 w-6 " width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" />  <path d="M4.05 11a8 8 0 1 1 .5 4m-.5 5v-5h5" />
               </svg>
             </button>
@@ -529,13 +626,13 @@ function Watching({ videoprops }) {
               </svg>
             </button>
             <button className="full-screen-btn" onClick={handleFullScreen}>
-              <svg class="h-7 w-7 open" width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z" />  <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
+              <svg className="h-7 w-7 open" width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">  <path stroke="none" d="M0 0h24v24H0z" />  <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
                 <path d="M4 16v2a2 2 0 0 0 2 2h2" />
                 <path d="M16 4h2a2 2 0 0 1 2 2v2" />
                 <path d="M16 20h2a2 2 0 0 0 2 -2v-2" />
               </svg>
 
-              <svg class="h-7 w-7 close" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <svg className="h-7 w-7 close" width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" />
                 <path d="M15 19v-2a2 2 0 0 1 2 -2h2" />
                 <path d="M15 5v2a2 2 0 0 0 2 2h2" />
@@ -547,7 +644,9 @@ function Watching({ videoprops }) {
 
           </div>
         </div>
-        <video onClick={togglePlay} poster={`${process.env.NEXT_PUBLIC_URL}/Thumbnails/${videoprops.Image}`} ref={videoRef} src={videoId} onEnded={() => handleNext(videoprops.NextVideo)} className='rounded' autoPlay />
+        <video id='my-video' type="video/mp4" onClick={togglePlay} poster={`${process.env.NEXT_PUBLIC_URL}/Thumbnails/${videoprops.Image}`} ref={videoRef} src={videoId} onEnded={() => handleNext(videoprops.NextVideo)} className='rounded video-js' autoPlay />
+
+
         <Menu id={MENU_ID}>
           {videoRef.current && (
             <>

@@ -43,7 +43,7 @@ function Videos() {
       
     }
   }, [router,auto])
-  
+  if(videos.length === undefined) return null
   return (
     <>
     <InfiniteScroll

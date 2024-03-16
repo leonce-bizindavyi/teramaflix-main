@@ -1,21 +1,51 @@
-import Image from 'next/image'
 import Link from 'next/link'
-import React,{useState,useEffect} from 'react'
+import React, { useState, useEffect } from 'react'
+import  { useRouter } from 'next/router'
+import Image from 'next/image'
 
 function ChangePass() {
-  const [logo1, setLogo1] = useState('/logo/TeramaFlixpic.png')
-  useEffect(() => {
-    const fetchLogos = async () => {
-      try {
-          const resp1 = await fetch('/logo/TeramaFlixpic.png');
-          const blob1 = await resp1.blob();
-          setLogo1(URL.createObjectURL(blob1))
-      } catch (error) {
-        console.error('Error fetching video:', error);
+  const [email, setEmail] = useState('')
+  const [errmail, setErrMail] = useState("")
+  const [sended, setSended] = useState(false)
+  const router = useRouter()
+  const sendLink = async () => {
+    if (email !== "") {
+      const addData = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          mail: email
+        })
+      };
+      setErrMail('')
+      const res = await fetch(`/api/changePass`, addData);
+      const response = await res.json();
+
+      console.log("mess:", response.response);
+      if (response.response.message !== "success") {
+        if (response.response.message == "validationError") {
+          response.response.data.issues.map(err => {
+            if (err.path == 'userMail') setErrMail(err.message)
+          })
+        }
+        if (response.response.data == "errorMail") {
+          setErrMail(response.response.error)
+        }
+        return;
+      } else {
+        setSended(true)
+        console.log("inside");
+        router.push('/waitchngpass')
       }
-    };
-    fetchLogos()
-  }, [])
+
+
+    }
+    else {
+      setErrMail("The mail must be completed")
+    }
+  }
   return (
     <>
       <div  className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
@@ -24,7 +54,7 @@ function ChangePass() {
 
     <div  className="max-w-md mx-auto ">
         <div className=' flex justify-center h-28 w-full '>
-          <Image src={logo1}  width={80} height={80} alt="logo"  className="w-28 h-full"/>
+        <Image src={`/logo/TeramaFlixpic.png`} width={280} height={280} alt="logo"  className="w-28 h-full"/>
         </div>
         <div  className="divide-y divide-gray-200">
           <div  className="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7">
@@ -38,11 +68,9 @@ function ChangePass() {
                     type="email" placeholder="enter your email" />
                     <span  className="">  </span>
                 </div>
-                <Link href='/resetPassword' >
-                    <button name="changemod"  className="bg-blue-500 hover:bg-blue-700 text-white p-2 rounded text-sm focus:outline-none focus:shadow-outline" type="submit">
+                    <button  onClick={sendLink} name="changemod"  className="bg-blue-500 hover:bg-blue-700 text-white p-2 rounded text-sm focus:outline-none focus:shadow-outline" type="submit">
                         Send Link
                     </button>
-                </Link>
             </div>
           </div>
           <div  className="pt-6 text-base leading-6  sm:text-sm sm:leading-7">
